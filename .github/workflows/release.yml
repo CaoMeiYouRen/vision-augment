@@ -37,7 +37,7 @@ jobs:
       # PSR 需要基于触发分支工作；强制 reset 到 workflow sha，
       # 防止运行期间分支更新导致发布未评估的改动
       - name: Checkout release branch
-        uses: actions/checkout@v6.0.3
+        uses: actions/checkout@v7.0.1
         with:
           ref: ${{ github.ref_name }}
 
