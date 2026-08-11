@@ -1,6 +1,6 @@
 [project]
 name = "vision-augment"
-version = "0.1.0"
+version = "1.0.0"
 description = "本地优先的多模态视觉 MCP —— 为无视觉 LLM 提供可自定义端点的看图/OCR/文档解析能力"
 readme = "README.md"
 requires-python = ">=3.12"
