@@ -15,9 +15,10 @@ name: release
 #   Environment name: （留空）
 
 on:
-  push:
-    branches:
-      - master
+  # push:
+  #   branches:
+  #     - master
+  workflow_dispatch:
 
 # 全局最小权限
 permissions:
