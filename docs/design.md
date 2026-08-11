@@ -196,13 +196,22 @@ task_type=document → markitdown → Markdown 文本（确定性，confidence=1
 
 ## 12. 平台支持矩阵
 
-| 组件 | Windows | macOS | Linux |
-| --- | --- | --- | --- |
-| MCP server（stdio） | ✅ | ✅ | ✅ |
-| RapidOCR（onnxruntime） | ✅ | ✅ | ✅ |
-| markitdown | ✅ | ✅ | ✅ |
-| PaddleOCR（paddlepaddle） | ✅（体积大） | 🟡 | ✅ |
-| MinerU（P2，DeepSpeed/CUDA） | ❌ | ❌ | ✅ |
+| 组件 | Windows | macOS | Linux | Docker |
+| --- | --- | --- | --- | --- |
+| MCP server（stdio） | ✅ | ✅ | ✅ | ✅ |
+| MCP server（streamable-http） | ✅ | ✅ | ✅ | ✅（正式形态） |
+| RapidOCR（onnxruntime） | ✅ | ✅ | ✅ | ✅（镜像内置 ocr extra） |
+| markitdown | ✅ | ✅ | ✅ | ✅（镜像内置 document extra） |
+| PaddleOCR（paddlepaddle） | ✅（体积大） | 🟡 | ✅ | ⚠️（未内置，按需扩展） |
+| MinerU（P2，DeepSpeed/CUDA） | ❌ | ❌ | ✅ | ⚠️ |
+
+**Docker 部署**（`docker-compose.yml` + `Dockerfile`）：
+
+- 镜像由 CI（`.github/workflows/docker.yml`）构建发布：`linux/amd64` + `linux/arm64` 双架构，推送 docker.io / ghcr.io / registry.cn-hangzhou.aliyuncs.com 三渠道（tag：`latest` / 日期 / `sha-<短hash>`）；
+- compose 通过 `image: ${DOCKER_IMAGE:-caomeiyouren/vision-augment}` 直接拉取启动（不依赖本地构建）；
+- Dockerfile 从构建上下文安装源码（`uv sync --frozen --no-group dev --extra ocr --extra document`），**不依赖 PyPI**；非 root 运行；HEALTHCHECK 用 TCP 探测（MCP 端点 GET 返回 405）；
+- 发布前闸门：CI 先构建当前平台镜像并跑容器冒烟（MCP initialize 握手），通过后才多架构推送；
+- 暴露面：compose 默认映射 `127.0.0.1:8000`；接入 Hermes 同 compose 网络时可注释端口映射，直接用容器名访问。
 
 ## 13. 测试策略
 

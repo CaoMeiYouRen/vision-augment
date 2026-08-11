@@ -1,0 +1,22 @@
+version: "3"
+
+services:
+  vision-augment:
+    container_name: "vision-augment"
+    image: ${DOCKER_IMAGE:-caomeiyouren/vision-augment}
+    restart: unless-stopped
+    # 仅暴露到宿主机回环地址；需要局域网/远程访问时改为 "8000:8000" 并自备反代鉴权
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      VISION_AUGMENT_TRANSPORT: streamable-http
+      VISION_AUGMENT_HOST: 0.0.0.0
+      VISION_AUGMENT_PORT: 8000
+      VISION_AUGMENT_CACHE_DIR: /data/cache
+      # 视觉通道（OpenAI 兼容端点，可多个按序降级）
+      # VISION_AUGMENT_CHANNELS: '[{"base_url": "https://api.example.com/v1", "api_key": "${VISION_API_KEY}", "model": "qwen3.7-plus"}]'
+    volumes:
+      - va-cache:/data/cache
+
+volumes:
+  va-cache:

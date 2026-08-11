@@ -82,6 +82,28 @@ mcp_servers:
 
 > 注意：不要给 `streamable-http` 端点发送空 `params` 的 initialize 探测请求——SDK 会挂起该请求，用合法握手载荷探测。
 
+### 方式五：Docker 部署（streamable-http）
+
+直接使用 CI 构建发布的多架构镜像（`linux/amd64` + `linux/arm64`，发布到 Docker Hub / ghcr.io / 阿里云三个渠道，tag：`latest` / 日期 / `sha-<短hash>`）：
+
+```bash
+docker compose up -d
+# 等价：docker run -d --name vision-augment -p 127.0.0.1:8000:8000 caomeiyouren/vision-augment
+```
+
+- 自定义镜像源：`DOCKER_IMAGE=ghcr.io/caomeiyouren/vision-augment docker compose up -d`
+- 通道/密钥等配置通过环境变量或 `.env` 注入，示例见 [docker-compose.yml](docker-compose.yml)
+- 本地开发构建：`docker build -t vision-augment .`（构建上下文直接安装源码，不依赖 PyPI）
+
+与 Hermes 同 compose 网络接入（共享 `networks` 后走容器名）：
+
+```yaml
+mcp_servers:
+  vision-augment:
+    url: http://vision-augment:8000/mcp
+    transport: streamable-http
+```
+
 ### 注册到其他客户端
 
 ```jsonc
