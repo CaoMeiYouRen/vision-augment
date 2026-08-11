@@ -1,0 +1,92 @@
+name: release
+
+# 基于 python-semantic-release v10 官方推荐工作流：
+# https://python-semantic-release.readthedocs.io/en/latest/configuration/automatic-releases/github-actions.html
+#
+# - release job：PSR 依据 conventional commits 计算版本 → 写版本/CHANGELOG → 提交并打 tag
+#   → 构建产物（uv build）→ 创建 GitHub Release 并上传 assets
+# - deploy job：把 dist 上传到 PyPI，走 Trusted Publisher（OIDC），无需 API token
+#
+# Trusted Publisher 配置（PyPI → Publishing → Trusted Publishers）：
+#   PyPI Project Name: vision-augment
+#   Owner: CaoMeiYouRen
+#   Repository name: vision-augment
+#   Workflow name: release.yml
+#   Environment name: （留空）
+
+on:
+  push:
+    branches:
+      - master
+
+# 全局最小权限
+permissions:
+  contents: read
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: ${{ github.workflow }}-release-${{ github.ref_name }}
+      cancel-in-progress: false
+    permissions:
+      contents: write
+
+    steps:
+      # PSR 需要基于触发分支工作；强制 reset 到 workflow sha，
+      # 防止运行期间分支更新导致发布未评估的改动
+      - name: Checkout release branch
+        uses: actions/checkout@v6.0.3
+        with:
+          ref: ${{ github.ref_name }}
+
+      - name: Force release branch to workflow sha
+        run: git reset --hard ${{ github.sha }}
+
+      - name: Semantic version release
+        id: release
+        uses: python-semantic-release/python-semantic-release@v10.6.1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          git_committer_name: "github-actions"
+          git_committer_email: "actions@users.noreply.github.com"
+
+      - name: Upload to GitHub Release assets
+        uses: python-semantic-release/publish-action@v10.6.1
+        if: steps.release.outputs.released == 'true'
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ steps.release.outputs.tag }}
+
+      - name: Upload distribution artifacts
+        uses: actions/upload-artifact@v4
+        if: steps.release.outputs.released == 'true'
+        with:
+          name: distribution-artifacts
+          path: dist
+          if-no-files-found: error
+
+    outputs:
+      released: ${{ steps.release.outputs.released || 'false' }}
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: release
+    if: ${{ needs.release.outputs.released == 'true' }}
+
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Download distribution artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: distribution-artifacts
+          path: dist
+
+      # Trusted Publishing：pypa action 自动通过 GitHub OIDC 换取 PyPI 发布凭证
+      - name: Publish package distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist

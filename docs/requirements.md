@@ -100,7 +100,7 @@ DeepSeek、GLM 5.2 等主力模型无原生视觉能力，无法看图、截图�
 | 10 | **markitdown 能力边界**：扫描版 PDF、复杂表格/公式会丢失结构 | 中影响（预期管理） | 文档标注：难版面走 `ocr` 或 P2 的 PaddleOCR-VL/MinerU 链 |
 | 11 | **reasoning 缓存命中率**：缓存 key 含 task 文本，提问不同即不命中 | 低影响 | 语义正确（同图同问才命中），无副作用；文档写明 |
 | 12 | **测试策略**：重型引擎无法进单测 | 低影响 | 已落地：适配器依赖注入，router 测试 mock provider；OCR/文档引擎留手动集成测试清单 |
-| 13 | **发布与 CI**：立项未提版本管理与 CI | 中影响（长期维护） | README 给发布流程；后续补 GitHub Actions（lint + test + build）+ 版本 tag（P2） |
+| 13 | **发布与 CI**：立项未提版本管理与 CI | 中影响（长期维护） | 已落地：test.yml（矩阵 CI）+ release.yml（python-semantic-release 自动版本化 + Trusted Publisher/OIDC 发布 PyPI），见 design.md §14 |
 | 14 | **多 harness 注册**：Hermes / Claude Desktop / OpenCode 配置格式不同 | 中影响（易用性） | README + SKILL.md 各给一份注册示例 |
 | 15 | **缓存清理**：TTL 只能懒清理，用户无主动手段 | 低影响 | 已落地：`mcp_vision_augment_clear_cache` 工具 |
 | 16 | **视觉结果长度**：远端模型可能返回超长文本 | 低影响 | reasoning 结果同样受 max_output_chars 约束（router 统一截断，metadata.truncated） |
@@ -115,5 +115,5 @@ DeepSeek、GLM 5.2 等主力模型无原生视觉能力，无法看图、截图�
 | 2 | 视觉通道层：OpenAI 兼容 client + 本地 Ollama 探测 | ✅ 本期完成 |
 | 3 | 本地 OCR（RapidOCR）/ 本地文档（markitdown） | ✅ 适配器完成，待真实引擎集成验证 |
 | 4 | 任务路由 + JSON envelope + 超时/缓存护栏 | ✅ 本期完成 |
-| 5 | 注册到 Hermes + 验证全链路 | ⏳ 待做 |
-| 6 | （可选）推送 GitHub + `hermes skills tap` 分发 | ⏳ 待做 |
+| 5 | 注册到 Hermes + 验证全链路 | ⏳ 待做（需先推送 GitHub） |
+| 6 | 推送 GitHub（默认分支 master）+ 配置 PyPI Trusted Publisher + 首次发布 | ⏳ 待做（workflow 与 PSR 配置已完成） |

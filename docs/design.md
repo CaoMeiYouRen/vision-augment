@@ -212,9 +212,17 @@ task_type=document → markitdown → Markdown 文本（确定性，confidence=1
 ## 14. 发布与分发
 
 - 入口：`[project.scripts] vision-augment = "vision_augment:main"`；
-- 运行：`uvx vision-augment`（默认无重型依赖）/ `uvx vision-augment[ocr]` 等；
-- 版本：`__version__` 与 pyproject 同步；发布流程 README 有述（tag → build → PyPI 可选）；
-- CI（P2）：GitHub Actions = ruff + pytest + build。
+- 运行：`uvx vision-augment`（PyPI 发布后）/ `uvx "vision-augment @ git+https://github.com/CaoMeiYouRen/vision-augment"`（发布前，extras 写在 `@` 前）；
+- **版本与发布（CI 自动）**：`python-semantic-release` v10 配置见 pyproject `[tool.semantic_release]`：
+  - `branch = "master"`，conventional commits 驱动 bump；
+  - `version_toml` 同步 `pyproject.toml:project.version`，`version_variables` 同步 `__init__.py:__version__`；
+  - `build_command`：容器内 `pip install -e '.[build]'`（装 uv）→ `uv lock` + `git add uv.lock`（release 提交内一并更新锁文件）→ `uv build`；
+  - `[tool.semantic_release.publish] upload_to_repository = false`：PyPI 上传交给 pypa action（OIDC），PSR 只传 GitHub Release assets；
+- **CI**：
+  - `test.yml`：push/PR 触发，ubuntu + windows × py3.12/3.13 矩阵，`uv sync --locked` + ruff + pytest；
+  - `release.yml`：push master 触发，release job（PSR 版本化 + 构建 + GitHub Release）→ deploy job（`id-token: write` + `pypa/gh-action-pypi-publish`，Trusted Publisher 免 token）；
+  - Trusted Publisher 表单：project `vision-augment` / owner `CaoMeiYouRen` / repo `vision-augment` / workflow `release.yml` / environment 留空；
+- 手动发布备选：`uv build && uv publish`（`UV_PUBLISH_TOKEN`）。
 
 ## 15. 目录结构
 

@@ -48,7 +48,20 @@ mcp_servers:
 
 无通道配置时自动探测本地 Ollama VL 模型作为兜底；通道配置优先。
 
-### 方式三：HTTP 传输（streamable-http）
+### 方式三：从 GitHub 直接安装（未发布到 PyPI 前）
+
+```bash
+# 最新 master（PEP 508 语法：extras 在 @ 之前）
+uvx "vision-augment[ocr,document] @ git+https://github.com/CaoMeiYouRen/vision-augment"
+
+# 锁定 tag / commit
+uvx "vision-augment @ git+https://github.com/CaoMeiYouRen/vision-augment@v0.1.0"
+
+# 长期安装到 PATH（等价 pipx）
+uv tool install "vision-augment[ocr] @ git+https://github.com/CaoMeiYouRen/vision-augment"
+```
+
+### 方式四：HTTP 传输（streamable-http）
 
 适合 Docker 部署、远程服务器、多客户端并发场景（stdio 单进程只能服务一个客户端）：
 
@@ -120,6 +133,22 @@ uv run ruff check  # 代码检查
 uv sync --extra ocr --extra document   # RapidOCR + markitdown
 # 或全量：uv sync --all-extras（含 PaddleOCR，体积大）
 ```
+
+## 发布（CI 自动）
+
+push 到 `master` 后，[release workflow](.github/workflows/release.yml) 由 [python-semantic-release](https://python-semantic-release.readthedocs.io/) 根据 conventional commits 自动版本化（pyproject + `__version__` + CHANGELOG + tag + GitHub Release），并通过 **Trusted Publisher（OIDC，免 token）** 发布到 PyPI。
+
+Trusted Publisher 配置（PyPI → Publishing → Trusted Publishers → Add pending publisher）：
+
+| 字段 | 值 |
+| --- | --- |
+| PyPI Project Name | `vision-augment` |
+| Owner | `CaoMeiYouRen` |
+| Repository name | `vision-augment` |
+| Workflow name | `release.yml` |
+| Environment name | 留空 |
+
+首次发布后 `uvx vision-augment` 即生效。手动发布备选：`uv build && uv publish`（需 `UV_PUBLISH_TOKEN`）。
 
 ## 文档
 

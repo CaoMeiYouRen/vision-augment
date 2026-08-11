@@ -29,6 +29,8 @@ ocr = ["rapidocr-onnxruntime>=1.4,<2"]
 ocr-full = ["paddleocr>=3"]
 # 本地文档解析：docx/pdf/pptx/xlsx/html 等 → Markdown
 document = ["markitdown[all]>=0.1"]
+# python-semantic-release 的 build_command 在官方 action 容器内安装 uv 用
+build = ["uv>=0.9"]
 full = [
     "rapidocr-onnxruntime>=1.4,<2",
     "paddleocr>=3",
@@ -50,7 +52,7 @@ build-backend = "hatchling.build"
 packages = ["src/vision_augment"]
 
 [dependency-groups]
-dev = ["pytest>=8", "ruff>=0.9"]
+dev = ["pytest>=8", "python-semantic-release>=10.6,<11", "ruff>=0.9"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -59,3 +61,19 @@ addopts = "-q"
 [tool.ruff]
 line-length = 100
 target-version = "py312"
+
+[tool.semantic_release]
+branch = "master"
+version_toml = ["pyproject.toml:project.version"]
+version_variables = ["src/vision_augment/__init__.py:__version__"]
+build_command = """
+    python -m pip install -e '.[build]'
+    uv lock
+    git add uv.lock
+    uv build
+"""
+
+[tool.semantic_release.publish]
+# PyPI 上传交给 pypa/gh-action-pypi-publish（Trusted Publisher / OIDC），
+# PSR 只负责构建产物并上传到 GitHub Release assets。
+upload_to_repository = false
