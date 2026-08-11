@@ -1,0 +1,61 @@
+[project]
+name = "vision-augment"
+version = "0.1.0"
+description = "本地优先的多模态视觉 MCP —— 为无视觉 LLM 提供可自定义端点的看图/OCR/文档解析能力"
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "MIT" }
+keywords = ["mcp", "vision", "ocr", "document", "multimodal", "llm"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Image Recognition",
+]
+dependencies = [
+    "mcp[cli]>=1.28,<2",
+    "httpx>=0.28",
+    "pydantic>=2.10",
+]
+
+[project.optional-dependencies]
+# 轻量本地 OCR（默认）：ONNX 推理，跨平台
+ocr = ["rapidocr-onnxruntime>=1.4,<2"]
+# 中文更强但依赖很重的本地 OCR（paddlepaddle ~600MB）
+ocr-full = ["paddleocr>=3"]
+# 本地文档解析：docx/pdf/pptx/xlsx/html 等 → Markdown
+document = ["markitdown[all]>=0.1"]
+full = [
+    "rapidocr-onnxruntime>=1.4,<2",
+    "paddleocr>=3",
+    "markitdown[all]>=0.1",
+]
+
+[project.scripts]
+vision-augment = "vision_augment:main"
+
+[project.urls]
+Homepage = "https://github.com/CaoMeiYouRen/vision-augment"
+Repository = "https://github.com/CaoMeiYouRen/vision-augment"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/vision_augment"]
+
+[dependency-groups]
+dev = ["pytest>=8", "ruff>=0.9"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
