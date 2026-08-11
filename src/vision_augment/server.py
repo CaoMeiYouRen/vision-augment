@@ -28,6 +28,7 @@ from pydantic import Field
 
 from .cache import TTLCache
 from .config import Settings, load_settings
+from .health import check as check_health
 from .router import Router
 
 logger = logging.getLogger("vision_augment")
@@ -74,6 +75,12 @@ def build_server(settings: Settings | None = None) -> FastMCP:
         """清除本地结果缓存（缓存 TTL 上限由 VISION_AUGMENT_CACHE_TTL_SECONDS 控制）。"""
         count = router.cache.clear()
         return f"cleared {count} cached entries"
+
+    @mcp.tool()
+    def mcp_vision_augment_health() -> dict:
+        """环境探测：检查视觉通道/Ollama/OCR/文档引擎的配置状态（不含密钥），
+        用于向用户反馈还缺少哪些配置及对应安装命令。"""
+        return check_health(settings)
 
     return mcp
 

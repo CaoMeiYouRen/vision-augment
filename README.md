@@ -99,7 +99,31 @@ mcp_servers:
 | 工具 | 说明 |
 | --- | --- |
 | `mcp_vision_augment_vision` | 入口：`task_type`（reasoning 看图问答 / ocr 图片文字 / document 文档解析）+ `source`（路径 / file:// / http(s):// / data:URL）+ `task` + `language` |
+| `mcp_vision_augment_health` | 环境探测：通道/Ollama/OCR/文档引擎配置状态（不含密钥），供 agent 反馈缺失配置 |
 | `mcp_vision_augment_clear_cache` | 清除本地结果缓存 |
+
+## 安装与使用 Skill
+
+仓库根目录的 `SKILL.md` 符合 [Agent Skills 规范](https://skills.sh/)，可通过 `npx skills` 生态一键安装（需仓库已公开）：
+
+```bash
+# 全局安装到 opencode / hermes-agent
+npx skills add CaoMeiYouRen/vision-augment -g -a opencode -a hermes-agent -y
+
+# 或项目级安装（不指定 -g）
+npx skills add CaoMeiYouRen/vision-augment
+
+# 查看已安装
+npx skills list
+```
+
+Skill 安装后 agent 的工作方式：
+
+1. **环境探测**：优先调用 `mcp_vision_augment_health` 检查通道/Ollama/引擎状态，自动向你反馈还缺哪些配置及安装命令（如 `uvx vision-augment[ocr]`）
+2. **任务路由**：看图 → `reasoning`；图片文字 → `ocr`；文档解析 → `document`，由 skill 指引 agent 选择
+3. **故障闭环**：错误码 0-5 对应的处置路径写在 SKILL.md 中
+
+手动安装：把 `SKILL.md` 复制到 `~/.config/opencode/skills/vision-augment/`（opencode）或 `~/.hermes/skills/`（Hermes）等目录即可。
 
 ## 配置（环境变量，均有默认值）
 

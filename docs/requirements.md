@@ -61,6 +61,7 @@ DeepSeek、GLM 5.2 等主力模型无原生视觉能力，无法看图、截图�
 | FR-11 | 输入大小限制：`max_input_mb` 上限 | P1 | 超限输入返回 code-3 |
 | FR-12 | 可选引擎升级链：PaddleOCR（中文增强）、MinerU（复杂文档，Linux-only） | P2 | 通过 extras 安装后启用，未安装时不影响默认链路 |
 | FR-13 | 传输方式：stdio（默认）+ streamable-http（可选） | P1 | 默认 stdio 零配置；`VISION_AUGMENT_TRANSPORT=streamable-http` 启动后 `/mcp` 可完成 MCP 握手与 tools/list |
+| FR-14 | 环境探测：`mcp_vision_augment_health` 返回通道/Ollama/引擎/缓存状态 | P1 | 返回 JSON 不含密钥；引擎缺失时附安装命令；支撑 skill 自动配置 |
 
 ## 5. 非功能需求
 

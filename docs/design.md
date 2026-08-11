@@ -46,6 +46,7 @@
 | --- | --- | --- |
 | `server.py` | FastMCP 装配、工具定义、日志初始化 | mcp |
 | `router.py` | task_type 分流、降级编排、envelope 组装、输出截断、缓存存取 | 内置 |
+| `health.py` | 环境探测：通道/Ollama/引擎可用性/缓存/输入限制（不含密钥），支撑 skill 自动配置 | 内置 |
 | `config.py` | `VISION_AUGMENT_*` 环境变量解析 → `Settings`/`VisionChannel` | 内置 |
 | `envelope.py` | 统一输出结构 + 错误码 0-5 + 异常类型体系 | 内置 |
 | `input.py` | source 归一化（路径/file:///URL/data:）、sha256、临时文件物化 | httpx |
@@ -233,7 +234,7 @@ vision-augment/
 │   ├── requirements.md
 │   └── design.md
 ├── src/vision_augment/
-│   ├── server.py / router.py / config.py / envelope.py / input.py / cache.py
+│   ├── server.py / router.py / health.py / config.py / envelope.py / input.py / cache.py
 │   ├── vision/  (client.py, ollama.py)
 │   ├── ocr/     (rapidocr.py)
 │   └── document/(markitdown.py)
