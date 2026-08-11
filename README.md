@@ -48,6 +48,14 @@ mcp_servers:
 
 无通道配置时自动探测本地 Ollama VL 模型作为兜底；通道配置优先。
 
+### 本地 OCR/文档引擎（按需安装）
+
+- 默认安装（`uvx vision-augment`）**只含视觉理解**（云端通道/Ollama）；OCR 与文档解析是本地引擎，按需通过 extras 安装：
+  - `[ocr]`：RapidOCR（ONNX，跨平台轻量）——`uvx vision-augment[ocr]`
+  - `[document]`：markitdown（docx/pdf/pptx/xlsx/html → Markdown）——`uvx vision-augment[document]`
+- 引擎未安装时调用对应任务返回 `code=4 dependency_missing`（错误信息附安装命令）；随时可用 `mcp_vision_augment_health` 查看引擎可用状态
+- ⚠️ **超时注意**：RapidOCR 引擎首次加载（ONNX 模型初始化）较慢，**首个 OCR 请求可能触发客户端 MCP 超时——重试一次即可**（引擎在 server 进程内缓存，第二次起秒回）；若频繁超时，调大客户端 MCP 工具超时（如 opencode 的 `toolTimeout`），或改用 HTTP 传输（见方式四）
+
 ### 方式三：从 GitHub 直接安装（未发布到 PyPI 前）
 
 ```bash
@@ -106,15 +114,40 @@ mcp_servers:
 
 ### 注册到其他客户端
 
+`env` 字段用于注入通道配置与密钥（与 Hermes 示例中的 env 同理）；通道为空时自动探测本地 Ollama 兜底。
+
 ```jsonc
 // Claude Desktop: claude_desktop_config.json
-{ "mcpServers": { "vision-augment": { "command": "uvx", "args": ["vision-augment"] } } }
+{
+  "mcpServers": {
+    "vision-augment": {
+      "command": "uvx",
+      "args": ["vision-augment"],
+      "env": {
+        "VISION_AUGMENT_CHANNELS": "[{\"base_url\": \"https://api.example.com/v1\", \"api_key\": \"...\", \"model\": \"qwen3.7-plus\"}]"
+      }
+    }
+  }
+}
 ```
 
 ```jsonc
-// OpenCode: opencode.json
-{ "mcp": { "vision-augment": { "type": "local", "command": ["uvx", "vision-augment"], "enabled": true } } }
+// OpenCode: opencode.json（--from 指定 extras 可启用本地 OCR/文档引擎）
+{
+  "mcp": {
+    "vision-augment": {
+      "type": "local",
+      "command": ["uvx", "--from", "vision-augment[ocr,document]", "vision-augment"],
+      "enabled": true,
+      "env": {
+        "VISION_AUGMENT_CHANNELS": "[{\"base_url\": \"https://api.example.com/v1\", \"api_key\": \"...\", \"model\": \"qwen3.7-plus\"}]"
+      }
+    }
+  }
+}
 ```
+
+> 注意：修改配置（通道/模型/extras）后需**重启客户端会话**——MCP server 在启动时加载 env，不重启仍是旧配置。
 
 ## 工具
 
