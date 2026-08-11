@@ -1,0 +1,22 @@
+version: 2
+updates:
+  # Python 依赖（pyproject.toml + uv.lock）
+  - package-ecosystem: pip
+    directory: /
+    open-pull-requests-limit: 20
+    labels:
+      - dependencies
+    schedule:
+      interval: monthly
+      time: "04:00"
+      timezone: Asia/Shanghai
+  # GitHub Actions
+  - package-ecosystem: github-actions
+    directory: /
+    open-pull-requests-limit: 20
+    labels:
+      - dependencies
+    schedule:
+      interval: monthly
+      time: "04:00"
+      timezone: Asia/Shanghai

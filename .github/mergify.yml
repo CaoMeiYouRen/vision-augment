@@ -1,0 +1,10 @@
+pull_request_rules:
+  - name: automatic merge for Dependabot pull requests
+    conditions:
+      # 矩阵 job 的 check 名为 "test (ubuntu-latest, 3.12)" 等，用正则匹配
+      - check-success~=^test( \(.*\))?$
+      - author~=^dependabot(|-preview)\[bot\]$
+      - label=dependencies
+    actions:
+      merge:
+        method: rebase
