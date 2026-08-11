@@ -1,0 +1,34 @@
+name: Fix uv.lock for Dependabot PRs
+
+# Dependabot 更新 pyproject.toml 后不会同步 uv.lock，导致 CI 的
+# `uv sync --locked` 失败。本 workflow 对 Dependabot PR 自动执行
+# `uv lock` 并把刷新后的锁文件提交回 PR 分支（已一致时不提交，避免循环触发）。
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+
+jobs:
+  fix-lockfile:
+    if: github.actor == 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6.0.3
+        with:
+          ref: ${{ github.head_ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: astral-sh/setup-uv@v9.0.0
+      - name: Refresh uv.lock
+        run: |
+          uv lock
+          if ! git diff --quiet uv.lock; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add uv.lock
+            git commit -m "chore(deps): refresh uv.lock for dependabot update"
+            git push
+          fi
