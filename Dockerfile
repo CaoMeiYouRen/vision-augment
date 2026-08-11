@@ -16,8 +16,8 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 WORKDIR /app
 
-# 先拷贝依赖清单以利用构建缓存
-COPY pyproject.toml uv.lock ./
+# 先拷贝依赖清单以利用构建缓存（README.md 为 hatchling 构建所需）
+COPY pyproject.toml uv.lock README.md ./
 COPY src ./src
 
 # 安装项目（lock 精确解析）+ 本地 OCR/文档引擎 extras，不装 dev 组
