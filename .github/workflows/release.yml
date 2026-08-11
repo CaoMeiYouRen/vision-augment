@@ -52,6 +52,18 @@ jobs:
           git_committer_name: "github-actions"
           git_committer_email: "actions@users.noreply.github.com"
 
+      # 发布前最后一道闸：验证 PSR 刚构建的 dist 可安装、工具可用；
+      # 失败则中止，不创建 GitHub Release、不上传 PyPI。
+      - name: Setup uv for smoke test
+        if: steps.release.outputs.released == 'true'
+        uses: astral-sh/setup-uv@v9.0.0
+
+      - name: Smoke test built artifacts
+        if: steps.release.outputs.released == 'true'
+        run: |
+          uv sync --locked
+          uv run pytest tests/test_release_smoke.py -q
+
       - name: Upload to GitHub Release assets
         uses: python-semantic-release/publish-action@v10.6.1
         if: steps.release.outputs.released == 'true'

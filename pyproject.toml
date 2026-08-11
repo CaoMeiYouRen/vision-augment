@@ -57,6 +57,9 @@ dev = ["pytest>=8", "python-semantic-release>=10.6,<11", "ruff>=0.9"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
+markers = [
+    "integration: 集成测试（构建产物安装/HTTP 传输等，需要 uv/build 环境）",
+]
 
 [tool.ruff]
 line-length = 100
