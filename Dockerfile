@@ -20,8 +20,9 @@ WORKDIR /app
 COPY pyproject.toml uv.lock README.md ./
 COPY src ./src
 
-# 安装项目（lock 精确解析）+ 本地 OCR/文档引擎 extras，不装 dev 组
-RUN uv sync --frozen --no-group dev --extra ocr --extra document
+# 安装项目（lock 精确解析）+ 本地 OCR/文档引擎 extras，不装 dev 组；
+# 清空 uv 下载缓存，避免 wheel 缓存残留在镜像中（体积大头）
+RUN uv sync --frozen --no-group dev --extra ocr --extra document && uv cache clean
 
 # 非 root 运行
 RUN useradd -m appuser

@@ -54,7 +54,7 @@
 | `vision/client.py` | OpenAI 兼容通道链、降级、每通道超时 | httpx |
 | `vision/ollama.py` | 本地 Ollama VL 模型探测 | httpx |
 | `ocr/rapidocr.py` | RapidOCR 适配（懒加载、语言白名单、confidence 均值） | rapidocr-onnxruntime * |
-| `document/markitdown.py` | markitdown 适配（懒加载） | markitdown[all] * |
+| `document/markitdown.py` | markitdown 适配（懒加载） | markitdown[pdf,docx,pptx,xlsx] * |
 
 \* 仅通过 extras 安装（`ocr` / `document` / `full`）。
 

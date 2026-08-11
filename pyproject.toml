@@ -27,14 +27,15 @@ dependencies = [
 ocr = ["rapidocr-onnxruntime>=1.4,<2"]
 # 中文更强但依赖很重的本地 OCR（paddlepaddle ~600MB）
 ocr-full = ["paddleocr>=3"]
-# 本地文档解析：docx/pdf/pptx/xlsx/html 等 → Markdown
-document = ["markitdown[all]>=0.1"]
+# 本地文档解析：docx/pdf/pptx/xlsx/html 等 → Markdown（精选 extras，
+# 不用 [all] 以免拉入 azure/camelot/音频等无关重依赖；html 为内置支持）
+document = ["markitdown[pdf,docx,pptx,xlsx]>=0.1"]
 # python-semantic-release 的 build_command 在官方 action 容器内安装 uv 用
 build = ["uv>=0.9"]
 full = [
     "rapidocr-onnxruntime>=1.4,<2",
     "paddleocr>=3",
-    "markitdown[all]>=0.1",
+    "markitdown[pdf,docx,pptx,xlsx]>=0.1",
 ]
 
 [project.scripts]
