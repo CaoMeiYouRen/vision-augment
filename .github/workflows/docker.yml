@@ -128,4 +128,4 @@ jobs:
           user: ${{ secrets.DOCKER_USERNAME }}
           pass: ${{ secrets.DOCKER_PASSWORD }}
           slug: ${{ github.repository }}
-          description: "vision-augment: 本地优先的多模态视觉 MCP —— 为无视觉 LLM 提供可自定义端点的看图/OCR/文档解析能力"
+          description: "vision-augment: 本地优先的多模态视觉 MCP（看图/OCR/文档解析）"
